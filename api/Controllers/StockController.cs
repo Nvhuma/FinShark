@@ -26,15 +26,21 @@ namespace api.Controllers
        [HttpGet]
        public async  Task<IActionResult> GetAll()
        {
+         if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var Stocks = await _stockRepo.GetAllAysnc();
         var stockDto = Stocks.Select(s => s.ToStockDto());
 
         return Ok(Stocks);
        }
 
-       [HttpGet("{id}")]
+       [HttpGet("{id:int}")]
        public  async Task<IActionResult> getbyId([FromRoute] int id) 
        {
+        if(!ModelState.IsValid)
+        return BadRequest(ModelState);
+
         var stock =  await _stockRepo.GetByIdAysnc(id);
 
         if(stock == null)
@@ -47,7 +53,10 @@ namespace api.Controllers
 
        [HttpPost]
        public  async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDtos)
-       {
+       { 
+             if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+
             var stockModel = stockDtos.ToStockFromCreateDTO();
               
               await _stockRepo.CreateAysnc(stockModel);
@@ -55,7 +64,7 @@ namespace api.Controllers
             return CreatedAtAction(nameof(getbyId), new { id = stockModel.Id}, stockModel.ToStockDto());
        }
        [HttpPut]
-       [Route("{id}")]
+       [Route("{id:int}")]
        public  async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto UpdateDto)
        {
          var stockModel =  await _stockRepo.UpdateAsync(id, UpdateDto);
@@ -68,9 +77,12 @@ namespace api.Controllers
          return Ok(stockModel.ToStockDto());
        }
        [HttpDelete]
-       [Route("{id}")]
+       [Route("{id:int}")]
        public async Task<IActionResult> Delete([FromRoute] int id )
-       {
+       { 
+           if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var stockModel = await _stockRepo.DeleteAsync(id);
         if(stockModel == null)
         {
